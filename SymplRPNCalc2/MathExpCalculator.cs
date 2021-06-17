@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 namespace SymplRPNCalc2
 {
     //базовый класс для калькуляторов тестовых выражений
-    abstract class MathExpCalculator
-    {
+    abstract class MathExpCalculator: IConsoleInOut
+	{
 		//конствнты
 		protected const string cLegalChr = "1234567890+-*/()., "; //список допустимых символов
-		protected const string cDots = ".,";
 		protected const string cNumber = "1234567890"; //цифры
 		protected const string cOper = "+-*/"; //операторы
 		protected const string cPrnts = "()"; //скобки
@@ -25,23 +24,35 @@ namespace SymplRPNCalc2
 		public string MathExpr { get => mathExpr; }
 		public double CalcResult { get => calcResult; }
 
+		abstract public void CalcExpressionFromConsole();
+		abstract public void WriteResultToConsole();
+
+		abstract protected void Calc();
+
 		public MathExpCalculator()
 		{
 			mathExpr = "";
 			calcResult = 0;
 		}
 
-		abstract protected void Calc();
-
 		public void CalcExpression(string mathExpression)
         {
-			mathExpr = NormalizeMathExpression(mathExpression);
-			CheckMathExpressionSyntax();
+			string errMsg;
+
+			mathExpression = NormalizeMathExpression(mathExpression);
+			
+			if (CheckMathExpressionSyntax(mathExpression, out errMsg))
+			{
+				mathExpr = mathExpression;
+			}
+			else
+				throw new Exception("Syntax Error: " + errMsg);
+
 			Calc();
 		}
 
-
-		string NormalizeMathExpression(string mathExpression)
+		//нормализация математическго выражения убираем пробелы и меняем точку на запятую в дробной части
+		static string NormalizeMathExpression(string mathExpression)
 		{
 			string normStr = "";
 
@@ -62,11 +73,16 @@ namespace SymplRPNCalc2
 			return normStr;
 		}
 
-		void CheckMathExpressionSyntax()
+		//проверка общих правил построения математического выражения
+		static bool CheckMathExpressionSyntax(in string mathExpr, out string errMsg)
 		{
 			int cntLeftLPrnts = 0; //кол-во левых скобок
 			int cntRightPrnts = 0; //кол-во правых скобок
 			char prevChr = '\0'; //переменная для предыдущего символа при анализе последовательности символов
+
+			errMsg = "";
+			try
+			{
 
 				//проверка первого символа. если оператор и это не '-'  - ошибка
 				if (cOper.Contains(mathExpr[0]) && mathExpr[0] != '-')
@@ -126,7 +142,14 @@ namespace SymplRPNCalc2
 				if (cntLeftLPrnts != cntRightPrnts)
 					throw new Exception("Count of left parentheses not equal to count of rihgt parentheses.");
 
+			}
+			catch(Exception e)
+            {
+				errMsg = e.Message;
+				return false;
+            }
 
+			return true;
 		}
 
 

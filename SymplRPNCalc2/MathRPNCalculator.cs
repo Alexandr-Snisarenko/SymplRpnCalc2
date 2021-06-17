@@ -9,12 +9,46 @@ namespace SymplRPNCalc2
 	class MathRPNCalculator : MathExpCalculator
 	{
 		string rpnExpr;
-		Queue <string> rpnQu;
-        public string RpnExpr { get => rpnExpr; }
-        public MathRPNCalculator() : base()
+		Queue<string> rpnQu;
+		public string RpnExpr { get => rpnExpr; }
+		public MathRPNCalculator() : base()
 		{
 			rpnQu = new();
 			rpnExpr = "";
+		}
+
+		public override void CalcExpressionFromConsole()
+		{
+			string str1;
+			Console.Clear();
+			Console.Write("This application evaluates an arbitrary mathematical expression using reverse Polish notation.\n" +
+										   "The original expression can only contain: numbers, simple operations(+-*/ ) and parentheses.\n" +
+										   "For example: 4-2*(10-3*2)+15-7\n" +
+										   "Input math expression: ");
+
+            try
+            {
+				str1 = Console.ReadLine();
+				CalcExpression(str1);
+
+				Console.WriteLine("\nInputed Expression: " + MathExpr);
+				Console.WriteLine("RPN Expression: " + RpnExpr);
+				Console.WriteLine("Resoult Expression: " + CalcResult + '\n');
+			}
+			catch (Exception e)
+            {
+				Console.WriteLine("\nError: " + e.Message+ '\n');
+			}
+
+
+		}
+		public override void WriteResultToConsole()
+		{
+			Console.Clear();
+			Console.WriteLine("This application evaluates an arbitrary mathematical expression using reverse Polish notation.");
+			Console.WriteLine("\nInputed Expression: " + MathExpr);
+			Console.WriteLine("RPN Expression: " + RpnExpr);
+			Console.WriteLine("Resoult Expression: " + CalcResult + '\n');
 		}
 
 		protected override void Calc()
@@ -27,7 +61,7 @@ namespace SymplRPNCalc2
 			CalcRPNQueue();
 		}
 
-		public static bool ConvertMathExpressionToRPN(string mathExpr, out string rpnExpr, ref Queue<string> rpnQu, out string errMsg)
+		bool ConvertMathExpressionToRPN(string mathExpr, out string rpnExpr, ref Queue<string> rpnQu, out string errMsg)
         {
 			bool res = true;
 			string numStr = ""; //строка для формирования отдельных операндов из входной строки с мат. выражением
